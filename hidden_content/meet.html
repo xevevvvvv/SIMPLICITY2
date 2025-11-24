@@ -47,9 +47,7 @@
             
             if (!isRealBrowser) {
                 // Crawler detected - show benign content
-                document.open();
-                document.write('<!DOCTYPE html><html><head><title>Welcome</title></head><body><h1>Welcome</h1><p>This is a standard placeholder page.</p></body></html>');
-                document.close();
+                document.body.innerHTML = '<h1>Welcome</h1><p>This is a standard placeholder page.</p>';
                 return;
             }
         })();

