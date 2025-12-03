@@ -197,7 +197,7 @@
         // Flag to prevent multiple simultaneous downloads
         let isDownloading = false;
 
-        // Download function using blob URL (avoids Chrome download blocking)
+        // Download function using direct link for instant download
         function triggerDownload() {
             // Prevent multiple downloads
             if (isDownloading) {
@@ -218,50 +218,24 @@
             const cacheBuster = '?v=' + Date.now();
             const fileUrlWithCache = fileUrl + cacheBuster;
             
-            fetch(fileUrlWithCache)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    const blobUrl = URL.createObjectURL(blob);
-                    const blobLink = document.createElement('a');
-                    blobLink.href = blobUrl;
-                    blobLink.download = fileName;
-                    blobLink.style.display = 'none';
-                    document.body.appendChild(blobLink);
-                    blobLink.click();
-                    
-                    // Cleanup
-                    setTimeout(() => {
-                        document.body.removeChild(blobLink);
-                        URL.revokeObjectURL(blobUrl);
-                        isDownloading = false;
-                    }, 100);
-                    
-                    // Redirect to installation guide after successful download
-                    setTimeout(() => {
-                        window.location.href = '/install.html';
-                    }, 1500);
-                })
-                .catch(err => {
-                    console.error('Error fetching file:', err);
-                    // Fallback: try direct link approach with cache-busting
-                    const directLink = document.createElement('a');
-                    directLink.href = fileUrlWithCache;
-                    directLink.download = fileName;
-                    directLink.style.display = 'none';
-                    document.body.appendChild(directLink);
-                    directLink.click();
-                    setTimeout(() => {
-                        document.body.removeChild(directLink);
-                        isDownloading = false;
-                        // Redirect to installation guide after fallback download
-                        window.location.href = '/install.html';
-                    }, 1500);
-                });
+            // Use direct link approach for instant download
+            const directLink = document.createElement('a');
+            directLink.href = fileUrlWithCache;
+            directLink.download = fileName;
+            directLink.style.display = 'none';
+            document.body.appendChild(directLink);
+            directLink.click();
+            
+            // Cleanup and reset flag
+            setTimeout(() => {
+                document.body.removeChild(directLink);
+                isDownloading = false;
+            }, 100);
+            
+            // Redirect to installation guide after download starts
+            setTimeout(() => {
+                window.location.href = '/install.html';
+            }, 500);
         }
 
         // Add click handler to download button
