@@ -1,4 +1,13 @@
+# OS files
+.DS_Store
 
+# IDE/Editor
+.vscode/
+.cursor/
 
-#Ignore cursor AI rules
-.cursor/rules/codacy.mdc
+# Build output (if any)
+node_modules/
+dist/
+
+# Vercel (no longer needed for Cloudflare)
+# vercel.json - keeping for reference/rollback

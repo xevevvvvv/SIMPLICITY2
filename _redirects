@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects
+# Static files (html, assets, folders) are served first before redirects apply
+# This catches all unmatched routes and serves index.html (SPA-style routing)
+
+/*    /index.html    200
